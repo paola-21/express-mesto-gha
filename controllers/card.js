@@ -46,7 +46,7 @@ const deleteCardbyId = (req, res) => {
     .catch((err) => {
       if (err.message.includes('Cast to ObjectId failed for value')) {
         res
-          .status(404)
+          .status(400)
           .send({
             message: 'Карточка с указанным _id не найдена.',
           });
@@ -70,7 +70,7 @@ const likeCard = (req, res) => {
     .catch((err) => {
       if (err.message.includes('Cast to ObjectId failed for value')) {
         res
-          .status(404)
+          .status(400)
           .send({
             message: 'Передан несуществующий _id карточки',
           });
