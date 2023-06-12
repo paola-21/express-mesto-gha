@@ -8,7 +8,7 @@ const getUsers = async (req, res) => {
   } catch (err) {
     if (err.message.includes('validation failed')) {
       res
-      .status(400)
+      .status(404)
       .send({ message: 'Вы ввели некоректные данные' });
     } else {
       res
@@ -65,7 +65,7 @@ const CreateUser = (req, res) => {
 
 const editProfileUser = (req, res) => {
   const { name, about } = req.body;
-  User.findByIdAndUpdate(req.user._id, { name, about }, {new: true,
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true,
     runValidators: true,
     upsert: true})
     .then ((user) => res.status(200).send({data: user}))
@@ -93,7 +93,7 @@ const editProfileUser = (req, res) => {
 
 const editAvatarUser = (req, res) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(req.user._id, { avatar }, {new: true,
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true,
     runValidators: true,
     upsert: true})
     .then ((user) => res.status(200).send({data: user}))
