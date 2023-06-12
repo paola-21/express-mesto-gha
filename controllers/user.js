@@ -28,7 +28,7 @@ const getUsersbyId = (req, res) => {
     .catch((err) => {
       if (err.message.includes('Cast to ObjectId failed for value')) {
         res
-          .status(404)
+          .status(400)
           .send({
             message: 'Запрашиваемый пользователь не найден',
           });
@@ -66,12 +66,12 @@ const editProfileUser = async (req, res) => {
   try {
     const { name, about } = req.body;
     const profile = await User.findByIdAndUpdate(req.user._id, { name, about }, { new: true });
-    res.status(201).send(profile);
+    res.status(200).send(profile);
   } catch (err) {
     if (err.message.includes('validation failed')) {
       res
-      .status(400)
-      .send({ message: 'Вы ввели некоректные данные' });
+        .status(400)
+        .send({ message: 'Вы ввели некоректные данные' });
     } else if (err.message.includes('Cast to ObjectId failed for value')) {
       res
         .status(404)
@@ -90,12 +90,12 @@ const editProfileUser = async (req, res) => {
         });
     }
   };
-  };
+};
 const editAvatarUser = async (req, res) => {
   try {
     const { avatar } = req.body;
     const profile = await User.findByIdAndUpdate(req.user._id, { avatar: avatar}, { new: true });
-    res.status(201).send(profile);
+    res.status(200).send(profile);
   } catch (err) {
     if (err.message.includes('validation failed')) {
       res
