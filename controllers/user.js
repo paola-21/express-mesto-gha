@@ -8,7 +8,7 @@ const getUsers = async (req, res) => {
   } catch (err) {
     if (err.message.includes('validation failed')) {
       res
-        .status(400)
+        .status(404)
         .send({ message: 'Вы ввели некоректные данные' });
     } else {
       res
@@ -29,7 +29,7 @@ const getUsersbyId = (req, res) => {
     .catch((err) => {
       if (err.message.includes('Cast to ObjectId failed for value')) {
         res
-          .status(404)
+          .status(400)
           .send({
             message: 'Запрашиваемый пользователь не найден',
           });
