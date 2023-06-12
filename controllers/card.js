@@ -70,13 +70,13 @@ const likeCard = (req, res) => {
     .catch((err) => {
       if (err.message.includes('Cast to ObjectId failed for value')) {
         res
-          .status(400)
+          .status(404)
           .send({
             message: 'Передан несуществующий _id карточки',
           });
       } else if (err.message.includes('Cast to ObjectId faile')) {
         res
-          .status(404)
+          .status(400)
           .send({
             message: 'Переданы некорректные данные для постановки лайка.',
             err: err.message,
@@ -102,13 +102,13 @@ const dislikeCard = (req, res) => {
     .catch((err) => {
       if (err.message.includes('Cast to ObjectId failed for value')) {
         res
-          .status(400)
+          .status(404)
           .send({
             message: 'Передан несуществующий _id карточки',
           });
       } else if (err.message.includes('Cast to ObjectId faile')) {
         res
-          .status(404)
+          .status(400)
           .send({
             message: 'Переданы некорректные данные для снятии лайка.',
             err: err.message,

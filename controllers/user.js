@@ -29,7 +29,7 @@ const getUsersbyId = (req, res) => {
     .catch((err) => {
       if (err.message.includes('Cast to ObjectId failed for value')) {
         res
-          .status(404)
+          .status(400)
           .send({
             message: 'Запрашиваемый пользователь не найден',
           });
