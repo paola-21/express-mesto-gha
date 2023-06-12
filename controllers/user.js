@@ -1,3 +1,4 @@
+const user = require('../models/user');
 const User = require('../models/user');
 
 const getUsers = async (req, res) => {
@@ -28,7 +29,7 @@ const getUsersbyId = (req, res) => {
     .catch((err) => {
       if (err.message.includes('Cast to ObjectId failed for value')) {
         res
-          .status(400)
+          .status(404)
           .send({
             message: 'Запрашиваемый пользователь не найден',
           });
@@ -62,16 +63,17 @@ const CreateUser = (req, res) => {
     });
 };
 
-const editProfileUser = async (req, res) => {
-  try {
+const editProfileUser = (req, res) => {
     const { name, about } = req.body;
-    const profile = await User.findByIdAndUpdate(req.user._id, { name, about }, { new: true });
-    res.status(200).send(profile);
-  } catch (err) {
-    if (err.message.includes('validation failed')) {
+    User.findByIdAndUpdate(req.user._id, { name: name, about: about }, {new: true, runValidators: false, upsert: true})
+      .then ( (user) =>  res.status(200).send({data: user}))
+      .catch ((err) {
+    if (err.name === 'ValidationError') {
       res
         .status(400)
-        .send({ message: 'Вы ввели некоректные данные' });
+        .send({ message: 'Вы ввели некоректные данные',
+          err: err.message,
+          stack: err.stack});
     } else if (err.message.includes('Cast to ObjectId failed for value')) {
       res
         .status(404)
@@ -89,8 +91,9 @@ const editProfileUser = async (req, res) => {
           stack: err.stack,
         });
     }
-  };
+  });
 };
+
 const editAvatarUser = async (req, res) => {
   try {
     const { avatar } = req.body;
