@@ -8,8 +8,8 @@ const getUsers = async (req, res) => {
   } catch (err) {
     if (err.message.includes('validation failed')) {
       res
-      .status(404)
-      .send({ message: 'Вы ввели некоректные данные' });
+        .status(400)
+        .send({ message: 'Вы ввели некоректные данные' });
     } else {
       res
         .status(500)
@@ -29,18 +29,14 @@ const getUsersbyId = (req, res) => {
     .catch((err) => {
       if (err.message.includes('Cast to ObjectId failed for value')) {
         res
-          .status(400)
+          .status(404)
           .send({
             message: 'Запрашиваемый пользователь не найден',
           });
       } else {
         res
           .status(500)
-          .send({
-            message: 'Internal Server Error',
-            err: err.message,
-            stack: err.stack,
-          });
+          .send({ message: 'Internal Server Error' });
       }
     });
 };
