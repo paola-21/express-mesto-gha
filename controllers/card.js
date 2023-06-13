@@ -66,22 +66,19 @@ const likeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true })
+    .orFail(() => new Error('Not found'))
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.message.includes('Cast to ObjectId failed for value')) {
         res
-          .status(404)
+          .status(400)
           .send({
             message: 'Передан несуществующий _id карточки',
           });
-      } else if (err.message.includes('Cast to ObjectId faile')) {
+      } else if (err.message === 'Not found') {
         res
           .status(400)
-          .send({
-            message: 'Переданы некорректные данные для постановки лайка.',
-            err: err.message,
-            stack: err.stack,
-          });
+          .send({ message: 'Переданы некорректные данные для постановки лайка.' });
       } else {
         res
           .status(500)
@@ -98,22 +95,19 @@ const dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true })
+    .orFail(() => new Error('Not found'))
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.message.includes('Cast to ObjectId failed for value')) {
         res
-          .status(404)
+          .status(400)
           .send({
             message: 'Передан несуществующий _id карточки',
           });
-      } else if (err.message.includes('Cast to ObjectId faile')) {
+      } else if (err.message === 'Not found') {
         res
           .status(400)
-          .send({
-            message: 'Переданы некорректные данные для снятии лайка.',
-            err: err.message,
-            stack: err.stack,
-          });
+          .send({ message: 'Переданы некорректные данные для постановки лайка.' });
       } else {
         res
           .status(500)
