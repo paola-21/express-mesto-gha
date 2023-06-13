@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const router = require('./routes');
+const helmet = require('helmet');
 
 const app = express();
 
@@ -12,7 +13,7 @@ mongoose.connect('mongodb://127.0.0.1/mestodb', {
 
 app.use((req, res, next) => {
   req.user = {
-    _id: '6485f525a43de59ea5d1aeb7',
+    _id: '6488cc76bc78858bf0dbf787',
   };
 
   next();
@@ -20,10 +21,7 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 app.use(router);
-
-app.use('/', (req, res) => {
-  res.status(404).send({ message: 'Страница не найдена' });
-});
+app.use(helmet());
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

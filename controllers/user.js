@@ -6,19 +6,13 @@ const getUsers = async (req, res) => {
     const users = await User.find({});
     res.status(200).send(users);
   } catch (err) {
-    if (err.message.includes('validation failed')) {
-      res
-        .status(404)
-        .send({ message: 'Вы ввели некоректные данные' });
-    } else {
-      res
-        .status(500)
-        .send({
-          message: 'Internal Server Error',
-          err: err.message,
-          stack: err.stack,
-        });
-    }
+    res
+      .status(500)
+      .send({
+        message: 'Internal Server Error',
+        err: err.message,
+        stack: err.stack,
+      });
   }
 };
 
@@ -31,7 +25,7 @@ const getUsersbyId = (req, res) => {
         res
           .status(404)
           .send({ message: 'Запрашиваемый пользователь не найден' });
-      } else if (err.message.includes('Cast to ObjectId failed for value')) {
+      } else if (err.name === 'CastError') {
         res
           .status(400)
           .send({ message: 'Вы ввели некоректные данные' });
@@ -64,15 +58,14 @@ const CreateUser = (req, res) => {
 const editProfileUser = (req, res) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true,
-    runValidators: true,
-    upsert: true})
-    .then ((user) => res.status(200).send({data: user}))
+    runValidators: true})
+    .then ((user) => res.send({data: user}))
     .catch ((err) => {
       if (err.name === 'ValidationError') {
         res
           .status(400)
-          .send({ message: 'Вы ввели некоректные данные'});
-      } else if (err.message.includes('Cast to ObjectId failed for value')) {
+          .send({ message: 'Переданы некорректные данные'});
+      } else if (err.name === 'CastError') {
         res
           .status(404)
           .send({
@@ -92,15 +85,14 @@ const editProfileUser = (req, res) => {
 const editAvatarUser = (req, res) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true,
-    runValidators: true,
-    upsert: true})
+    runValidators: true})
     .then ((user) => res.status(200).send({data: user}))
     .catch ((err) => {
       if (err.name === 'ValidationError') {
         res
           .status(400)
-          .send({ message: 'Вы ввели некоректные данные'});
-      } else if (err.message.includes('Cast to ObjectId failed for value')) {
+          .send({ message: 'Переданы некорректные данные'});
+      } else if (err.name === 'CastError') {
         res
           .status(404)
           .send({
