@@ -42,14 +42,19 @@ const createCards = (req, res) => {
 
 const deleteCardbyId = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
+    .orFail(() => new Error('Not found'))
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.message.includes('Cast to ObjectId failed for value')) {
         res
           .status(400)
           .send({
-            message: 'Карточка с указанным _id не найдена.',
+            message: 'Переданы некорректные данные для постановки лайка.',
           });
+      } else if (err.message === 'Not found') {
+        res
+          .status(404)
+          .send({ message: 'Карточка с указанным _id не найдена.' });
       } else {
         res
           .status(500)
@@ -77,7 +82,7 @@ const likeCard = (req, res) => {
           });
       } else if (err.message === 'Not found') {
         res
-          .status(400)
+          .status(404)
           .send({ message: 'Переданы некорректные данные для постановки лайка.' });
       } else {
         res
@@ -106,7 +111,7 @@ const dislikeCard = (req, res) => {
           });
       } else if (err.message === 'Not found') {
         res
-          .status(400)
+          .status(404)
           .send({ message: 'Переданы некорректные данные для постановки лайка.' });
       } else {
         res

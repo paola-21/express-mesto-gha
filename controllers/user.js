@@ -30,9 +30,11 @@ const getUsersbyId = (req, res) => {
       if (err.message === 'Not found') {
         res
           .status(404)
-          .send({
-            message: 'Запрашиваемый пользователь не найден',
-          });
+          .send({ message: 'Запрашиваемый пользователь не найден' });
+      } else if (err.message.includes('Cast to ObjectId failed for value')) {
+        res
+          .status(400)
+          .send({ message: 'Вы ввели некоректные данные' });
       } else {
         res
           .status(500)
