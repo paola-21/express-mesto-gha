@@ -114,7 +114,7 @@ const editAvatarUser = (req, res) => {
             stack: err.stack,
           });
       }
-});
+    });
 };
 
 module.exports = { getUsers, getUsersbyId, CreateUser, editProfileUser, editAvatarUser };
