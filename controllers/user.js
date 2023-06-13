@@ -61,15 +61,10 @@ const editProfileUser = (req, res) => {
     runValidators: true})
     .then ((user) => res.send({data: user}))
     .catch ((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         res
           .status(400)
           .send({ message: 'Переданы некорректные данные'});
-      } else if (err.name === 'CastError') {
-        res
-          .status(404)
-          .send({
-            message: 'Запрашиваемый пользователь не найден'});
       } else {
         res
           .status(500)
@@ -79,7 +74,7 @@ const editProfileUser = (req, res) => {
             stack: err.stack,
           });
       }
-});
+    });
 };
 
 const editAvatarUser = (req, res) => {
@@ -88,15 +83,10 @@ const editAvatarUser = (req, res) => {
     runValidators: true})
     .then ((user) => res.status(200).send({data: user}))
     .catch ((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         res
           .status(400)
           .send({ message: 'Переданы некорректные данные'});
-      } else if (err.name === 'CastError') {
-        res
-          .status(404)
-          .send({
-            message: 'Запрашиваемый пользователь не найден'});
       } else {
         res
           .status(500)
