@@ -1,26 +1,22 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const token = require('jsonwebtoken');
-const NotFoundError = require('../middlwares/NotFoundError');
+const NotFoundError = require('../middlwares/NotFoundError');//404
 const ErrNotAuth = require('../middlwares/NotErrAuth');
 const MongooseError = require('mongoose');
+const DuplicateEmail = require('../middlwares/DublicateEmail');//400
+const TokenError = require('../middlwares/TokenError');//401
 
-const getUsers = async (req, res) => {
+const getUsers = async (req, res, next) => {
   try {
     const users = await User.find({});
     res.status(200).send(users);
-  } catch (err) {
-    res
-      .status(500)
-      .send({
-        message: 'Internal Server Error',
-        err: err.message,
-        stack: err.stack,
-      });
+  } catch (e) {
+    next(err);
   }
 };
 
-const getUsersbyId = (req, res) => {
+const getUsersbyId = (req, res, next) => {
   User.findById(req.params.id)
     .orFail(() => new Error('Not found'))
     .then((user) => res.status(200).send(user))
@@ -30,13 +26,9 @@ const getUsersbyId = (req, res) => {
           .status(404)
           .send({ message: 'Запрашиваемый пользователь не найден' });
       } else if (err.name === 'CastError') {
-        res
-          .status(400)
-          .send({ message: 'Вы ввели некоректные данные' });
+        return next(new DuplicateEmail('Вы ввели некоректные данные'));
       } else {
-        res
-          .status(500)
-          .send({ message: 'Internal Server Error' });
+        next(err);
       }
     });
 };
@@ -52,7 +44,7 @@ const createUser = (req, res, next) => {
         })
         .catch((err) => {
           if (err.code === 11000) {
-            return next(new NotFoundError('Пользователь с такой почтой уже существует'));
+            return next(new DuplicateEmail('Пользователь с такой почтой уже существует'));
           } else if (err.name === 'ValidationError') {
             return next(new ErrNotAuth('Переданы некоректные данные'));
           } else {
@@ -67,7 +59,6 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email })
     .select('+password')
-    .orFail(() => new NotFoundError('Пользователь не найден'))
     .then((user) => {
       bcrypt.compare(String(password), user.password)
         .then((isValidUser) => {
@@ -79,75 +70,51 @@ const login = (req, res, next) => {
             });
             res.send({ data: user.deletePassword() });
           } else {
-            next(new ErrNotAuth('Не правильные почта или пароль'));
+            next(new TokenError('Неправильные почта или пароль'));
           }
         });
     })
     .catch(next);
 };
 
-const getUser = (req, res) => {
+const getUser = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true,
     runValidators: true})
     .then((user) => res.send({ data: user }))
-        .catch ((err) => {
+    .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
-        res
-          .status(400)
-          .send({ message: 'Переданы некорректные данные'});
+        return next(new ErrNotAuth('Переданы некорректные данные'));
       } else {
-        res
-          .status(500)
-          .send({
-            message: 'Internal Server Error',
-            err: err.message,
-            stack: err.stack,
-          });
+        next(err);
       }
     });
 };
 
-const editProfileUser = (req, res) => {
+const editProfileUser = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true,
     runValidators: true})
-    .then ((user) => res.send({data: user}))
-    .catch ((err) => {
+    .then((user) => res.send({data: user}))
+    .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
-        res
-          .status(400)
-          .send({ message: 'Переданы некорректные данные'});
+        return next(new ErrNotAuth('Переданы некорректные данные'));
       } else {
-        res
-          .status(500)
-          .send({
-            message: 'Internal Server Error',
-            err: err.message,
-            stack: err.stack,
-          });
+       next(err);
       }
     });
 };
 
-const editAvatarUser = (req, res) => {
+const editAvatarUser = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true,
     runValidators: true})
     .then ((user) => res.status(200).send({data: user}))
-    .catch ((err) => {
+    .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
-        res
-          .status(400)
-          .send({ message: 'Переданы некорректные данные'});
+        return next(new ErrNotAuth('Переданы некорректные данные'));
       } else {
-        res
-          .status(500)
-          .send({
-            message: 'Internal Server Error',
-            err: err.message,
-            stack: err.stack,
-          });
+       next(err);
       }
     });
 };
