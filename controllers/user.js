@@ -33,49 +33,6 @@ const getUsersbyId = (req, res, next) => {
     });
 };
 
-const createUser = (req, res, next) => {
-  bcrypt.hash(String(req.body.password), 10)
-    .then((hashedPassword) => {
-      User.create({ ...req.body, password: hashedPassword })
-        .then((user) => {
-          res
-            .status(201)
-            .send({ data: user.deletePassword() });
-        })
-        .catch((err) => {
-          if (err.code === 11000) {
-            return next(new DuplicateEmail('Пользователь с такой почтой уже существует'));
-          } else if (err.name === 'ValidationError') {
-            return next(new ErrNotAuth('Переданы некоректные данные'));
-          } else {
-            next(err);
-          }
-        });
-    })
-    .catch(next);
-};
-
-const login = (req, res, next) => {
-  const { email, password } = req.body;
-  User.findOne({ email })
-    .select('+password')
-    .then((user) => {
-      bcrypt.compare(String(password), user.password)
-        .then((isValidUser) => {
-          if (isValidUser) {
-            const jwt = token.sign({ _id: user._id }, 'some-secret-key');
-            res.cookie('jwt', jwt, {
-              maxAge: 360000,
-              httpOnly: true,
-            });
-            res.send({ data: user.deletePassword() });
-          } else {
-            next(new TokenError('Неправильные почта или пароль'));
-          }
-        });
-    })
-    .catch(next);
-};
 
 const getUser = (req, res, next) => {
   const { name, about } = req.body;
@@ -119,4 +76,4 @@ const editAvatarUser = (req, res, next) => {
     });
 };
 
-module.exports = { getUsers, getUsersbyId, createUser, editProfileUser, editAvatarUser, login, getUser };
+module.exports = { getUsers, getUsersbyId, editProfileUser, editAvatarUser, getUser };

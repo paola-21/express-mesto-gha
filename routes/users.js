@@ -2,10 +2,6 @@ const router = require('express').Router();
 const { getUsers, getUsersbyId, createUser, editProfileUser, editAvatarUser, login, getUser } = require('../controllers/user');
 const auth = require('../middlwares/auth');
 
-router.post('/signin', login);
-
-router.post('/signup', createUser);
-
 router.use(auth);
 
 router.get('/me', getUser);
