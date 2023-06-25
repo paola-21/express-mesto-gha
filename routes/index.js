@@ -1,8 +1,10 @@
 const router = require('express').Router();
 const userRouts = require('./users');
 const cardRouts = require('./cards');
+const auth = require('../middlwares/auth');
 
 router.use('/users', userRouts);
+
 router.use('/cards', cardRouts);
 
 router.use('/', (req, res) => {

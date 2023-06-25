@@ -1,5 +1,9 @@
-const user = require('../models/user');
 const User = require('../models/user');
+const bcrypt = require('bcryptjs');
+const token = require('jsonwebtoken');
+const NotFoundError = require('../middlwares/NotFoundError');
+const ErrNotAuth = require('../middlwares/NotErrAuth');
+const MongooseError = require('mongoose');
 
 const getUsers = async (req, res) => {
   try {
@@ -37,12 +41,61 @@ const getUsersbyId = (req, res) => {
     });
 };
 
-const CreateUser = (req, res) => {
-  User.create(req.body)
-    .then((user) => res.status(201).send(user))
-    .catch((err) => {
-      if (err.message.includes('validation failed')) {
-        res.status(400).send({ message: 'Вы ввели некоректные данные' });
+const createUser = (req, res, next) => {
+  bcrypt.hash(String(req.body.password), 10)
+    .then((hashedPassword) => {
+      User.create({ ...req.body, password: hashedPassword })
+        .then((user) => {
+          res
+            .status(201)
+            .send({ data: user.deletePassword() });
+        })
+        .catch((err) => {
+          if (err.code === 11000) {
+            return next(new NotFoundError('Пользователь с такой почтой уже существует'));
+          } else if (err.name === 'ValidationError') {
+            return next(new ErrNotAuth('Переданы некоректные данные'));
+          } else {
+            next(err);
+          }
+        });
+    })
+    .catch(next);
+};
+
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+  User.findOne({ email })
+    .select('+password')
+    .orFail(() => new NotFoundError('Пользователь не найден'))
+    .then((user) => {
+      bcrypt.compare(String(password), user.password)
+        .then((isValidUser) => {
+          if (isValidUser) {
+            const jwt = token.sign({ _id: user._id }, 'some-secret-key');
+            res.cookie('jwt', jwt, {
+              maxAge: 360000,
+              httpOnly: true,
+            });
+            res.send({ data: user.deletePassword() });
+          } else {
+            next(new ErrNotAuth('Не правильные почта или пароль'));
+          }
+        });
+    })
+    .catch(next);
+};
+
+const getUser = (req, res) => {
+  const { name, about } = req.body;
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true,
+    runValidators: true})
+    .then((user) => res.send({ data: user }))
+        .catch ((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        res
+          .status(400)
+          .send({ message: 'Переданы некорректные данные'});
       } else {
         res
           .status(500)
@@ -99,4 +152,4 @@ const editAvatarUser = (req, res) => {
     });
 };
 
-module.exports = { getUsers, getUsersbyId, CreateUser, editProfileUser, editAvatarUser };
+module.exports = { getUsers, getUsersbyId, createUser, editProfileUser, editAvatarUser, login, getUser };
