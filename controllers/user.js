@@ -2,9 +2,9 @@ const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const token = require('jsonwebtoken');
 const NotFoundError = require('../middlwares/NotFoundError');//404
-const ErrNotAuth = require('../middlwares/NotErrAuth');
+const ErrNotAuth = require('../middlwares/NotErrAuth');//400
 const MongooseError = require('mongoose');
-const DuplicateEmail = require('../middlwares/DublicateEmail');//400
+const DuplicateEmail = require('../middlwares/DublicateEmail');//409
 const TokenError = require('../middlwares/TokenError');//401
 
 const getUsers = async (req, res, next) => {
@@ -22,11 +22,9 @@ const getUsersbyId = (req, res, next) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.message === 'Not found') {
-        res
-          .status(404)
-          .send({ message: 'Запрашиваемый пользователь не найден' });
+        return next(new NotFoundError('Запрашиваемый пользователь не найден'));
       } else if (err.name === 'CastError') {
-        return next(new DuplicateEmail('Вы ввели некоректные данные'));
+        return next(new ErrNotAuth('Переданы некорректные данные'));
       } else {
         next(err);
       }

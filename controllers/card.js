@@ -1,20 +1,19 @@
 const Card = require('../models/card');
 
-const getCards = async (req, res) => {
+const NotFoundError = require('../middlwares/NotFoundError');//404
+const ErrNotAuth = require('../middlwares/NotErrAuth');//400
+const DuplicateEmail = require('../middlwares/DublicateEmail');//409
+const TokenError = require('../middlwares/TokenError');//401
+
+const getCards = async (req, res, next) => {
   try {
     const card = await Card.find({});
     res.status(200).send(card);
   } catch (err) {
     if (err.message.includes('validation failed')) {
-      res.status(400).send({ message: 'Вы ввели некоректные данные' });
+      return next(new ErrNotAuth('Вы ввели некоректные данные'));
     } else {
-      res
-        .status(500)
-        .send({
-          message: 'Internal Server Error',
-          err: err.message,
-          stack: err.stack,
-        });
+      next(err);
     }
   }
 };

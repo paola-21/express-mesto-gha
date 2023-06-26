@@ -14,12 +14,12 @@ const createUser = (req, res, next) => {
         .then((user) => {
           res
             .status(201)
-            .send({ data: user.deletePassword() });
+            .send({ data: user });
         })
         .catch((err) => {
           if (err.code === 11000) {
             return next(new DuplicateEmail('Пользователь с такой почтой уже существует'));
-          } else if (err.name === 'ValidationError') {
+          } else if (err.name === 'ValidationError' || err.name === 'ValidatorError') {
             return next(new ErrNotAuth('Переданы некоректные данные'));
           } else {
             next(err);
