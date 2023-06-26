@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const { getUsers, getUsersbyId, editProfileUser, editAvatarUser, getUser } = require('../controllers/user');
 const auth = require('../middlwares/auth');
+const { createUser, login } = require('../controllers/login');
 
 router.get('/:id', celebrate({
   params: Joi.object().keys({
