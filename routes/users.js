@@ -3,13 +3,14 @@ const { getUsers, getUsersbyId, editProfileUser, editAvatarUser, getUser } = req
 const auth = require('../middlwares/auth');
 const { celebrate, Joi } = require('celebrate');
 
+router.use(auth);
 router.get('/:id', celebrate({
   params: Joi.object().keys({
-    id: Joi.string().required().length(24),
+    id: Joi.string().required().length(24).hex(),
   }),
 }), getUsersbyId);
 
-router.use(auth);
+
 
 router.get('/me', getUser);
 
