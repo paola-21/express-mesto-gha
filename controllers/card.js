@@ -18,7 +18,7 @@ const getCards = async (req, res, next) => {
   }
 };
 
-const createCards = (req, res) => {
+const createCards = (req, res, next) => {
   Card.create({
     ...req.body,
     owner: req.user._id,
@@ -26,47 +26,29 @@ const createCards = (req, res) => {
     .then((card) => res.status(201).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Вы ввели некоректные данные' });
+        return next(new ErrNotAuth('Вы ввели некоректные данные'));
       } else {
-        res
-          .status(500)
-          .send({
-            message: 'Internal Server Error',
-            err: err.message,
-            stack: err.stack,
-          });
+        next(err);
       }
     });
 };
 
-const deleteCardbyId = (req, res) => {
+const deleteCardbyId = (req, res, next) => {
   Card.findByIdAndRemove(req.params.cardId)
     .orFail(() => new Error('Not found'))
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.message.includes('Cast to ObjectId failed for value')) {
-        res
-          .status(400)
-          .send({
-            message: 'Переданы некорректные данные для постановки лайка.',
-          });
+        return next(new ErrNotAuth('Вы ввели некоректные данные'));
       } else if (err.message === 'Not found') {
-        res
-          .status(404)
-          .send({ message: 'Карточка с указанным _id не найдена.' });
+        return next(new NotFoundError('Карточка с указанным _id не найдена'));
       } else {
-        res
-          .status(500)
-          .send({
-            message: 'Internal Server Error',
-            err: err.message,
-            stack: err.stack,
-          });
+        next(err);
       }
     });
 };
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true })
@@ -74,28 +56,16 @@ const likeCard = (req, res) => {
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.message.includes('Cast to ObjectId failed for value')) {
-        res
-          .status(400)
-          .send({
-            message: 'Передан несуществующий _id карточки',
-          });
+        return next(new ErrNotAuth('Передан несуществующий _id карточки'));
       } else if (err.message === 'Not found') {
-        res
-          .status(404)
-          .send({ message: 'Переданы некорректные данные для постановки лайка.' });
+        return next(new NotFoundError('Карточка с указанным _id не найдена'));
       } else {
-        res
-          .status(500)
-          .send({
-            message: 'Internal Server Error',
-            err: err.message,
-            stack: err.stack,
-          });
+        next(err);
       }
     });
 };
 
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true })
@@ -103,23 +73,11 @@ const dislikeCard = (req, res) => {
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.message.includes('Cast to ObjectId failed for value')) {
-        res
-          .status(400)
-          .send({
-            message: 'Передан несуществующий _id карточки',
-          });
+        return next(new ErrNotAuth('Передан несуществующий _id карточки'));
       } else if (err.message === 'Not found') {
-        res
-          .status(404)
-          .send({ message: 'Переданы некорректные данные для постановки лайка.' });
+        return next(new NotFoundError('Карточка с указанным _id не найдена'));
       } else {
-        res
-          .status(500)
-          .send({
-            message: 'Internal Server Error',
-            err: err.message,
-            stack: err.stack,
-          });
+        next(err);
       }
     });
 };
