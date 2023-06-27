@@ -4,6 +4,9 @@ const auth = require('../middlwares/auth');
 const { celebrate, Joi } = require('celebrate');
 
 router.use(auth);
+
+router.get('/me', getUser);
+
 router.get('/:id', celebrate({
   params: Joi.object().keys({
     id: Joi.string().required().length(24).hex(),
@@ -12,7 +15,7 @@ router.get('/:id', celebrate({
 
 
 
-router.get('/me', getUser);
+
 
 router.get('', getUsers);
 

@@ -34,19 +34,44 @@ const createCards = (req, res, next) => {
 };
 
 const deleteCardbyId = (req, res, next) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .orFail(() => new Error('Not found'))
-    .then((card) => res.status(200).send({ data: card }))
-    .catch((err) => {
-      if (err.message.includes('Cast to ObjectId failed for value')) {
-        return next(new ErrNotAuth('Вы ввели некоректные данные'));
-      } else if (err.message === 'Not found') {
-        return next(new NotFoundError('Карточка с указанным _id не найдена'));
-      } else {
-        next(err);
-      }
-    });
+Card.findById(req.params.cardId)
+  // .orFail(() => {
+  //   throw new NotFoundError('Not found');
+  // })
+  .then((card) => {
+    //const owner = card.owner._id;
+    if (req.user._id === card.owner._id) {
+      Card.deleteOne(card)
+        .then(() => {
+          res.send(card);
+          })
+        .catch(next);
+    } else {
+      return next(new TokenError('Вы ввели некоректные данные'));
+    }
+  })
+  .catch((err) => {
+    if (err.name === 'CastError') {
+      return next(new ErrNotAuth('Вы ввели некоректные данные'));
+    } else {
+      next(err);
+    }
+  });
 };
+
+//   Card.findByIdAndRemove(req.params.cardId)
+//     .orFail(() => new Error('Not found'))
+//     .then((card) => res.status(200).send({ data: card }))
+//     .catch((err) => {
+//       if (err.message.includes('Cast to ObjectId failed for value')) {
+//         return next(new ErrNotAuth('Вы ввели некоректные данные'));
+//       } else if (err.message === 'Not found') {
+//         return next(new NotFoundError('Карточка с указанным _id не найдена'));
+//       } else {
+//         next(err);
+//       }
+//     });
+// };
 
 const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId,

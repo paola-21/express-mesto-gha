@@ -34,8 +34,7 @@ const getUsersbyId = (req, res, next) => {
 
 const getUser = (req, res, next) => {
   const { name, about } = req.body;
-  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true,
-    runValidators: true})
+  User.findById(req.user._id)
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
