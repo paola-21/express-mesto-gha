@@ -32,6 +32,7 @@ const createUser = (req, res, next) => {
 const login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email })
+    .orFail(() => new TokenError('Пользователь не зарегистрирован'))
     .select('+password')
     .then((user) => {
       bcrypt.compare(String(password), user.password)
@@ -43,8 +44,11 @@ const login = (req, res, next) => {
               httpOnly: true,
             });
             res.send({ data: user.deletePassword() });
-          } else {
+          } else if (err.name === 'ValidationError' || err.name === 'ValidatorError') {
             next(new TokenError('Неправильные почта или пароль'));
+          }
+          else {
+            next(err);
           }
         });
     })
