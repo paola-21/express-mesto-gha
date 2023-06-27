@@ -34,29 +34,28 @@ const createCards = (req, res, next) => {
 };
 
 const deleteCardbyId = (req, res, next) => {
-Card.findById(req.params.cardId)
-  .orFail(() => {
-    throw new NotFoundError('Not found');
-  })
-  .then((card) => {
-    //const owner = card.owner._id;
-    if (req.user._id === card.owner._id) {
-      Card.deleteOne(card)
-        .then(() => {
-          res.send(card);
+  Card.findById(req.params.cardId)
+    .orFail(() => {
+      throw new TokenError('Not found');
+    })
+    .then((card) => {
+      if (req.user._id === card.owner._id) {
+        Card.deleteOne(card)
+          .then((card) => {
+            res.send(card);
           })
-        .catch(next);
-    } else {
-      return next(new TokenError('Вы ввели некоректные данные'));
-    }
-  })
-  .catch((err) => {
-    if (err.name === 'CastError') {
-      return next(new ErrNotAuth('Вы ввели некоректные данные'));
-    } else {
-      next(err);
-    }
-  });
+          .catch(next);
+      } else {
+        return next(new TokenError('Карточка с указанным _id не найдена'));
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return next(new ErrNotAuth('Вы ввели некоректные данные'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 //   Card.findByIdAndRemove(req.params.cardId)
