@@ -14,7 +14,7 @@ const createUser = (req, res, next) => {
         .then((user) => {
           res
             .status(201)
-            .send({ data: user });
+            .send({ data: user.deletePassword() });
         })
         .catch((err) => {
           if (err.code === 11000) {
