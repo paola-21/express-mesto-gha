@@ -1,10 +1,10 @@
 const Card = require('../models/card');
 
-const NotFoundError = require('../middlwares/NotFoundError');//404
-const ErrNotAuth = require('../middlwares/NotErrAuth');//400
-const DuplicateEmail = require('../middlwares/DublicateEmail');//409
-const TokenError = require('../middlwares/TokenError');//401
-const NotAccess = require('../middlwares/NotAccess');//403
+const NotFoundError = require('../utils/NotFoundError');//404
+const ErrNotAuth = require('../utils/NotErrAuth');//400
+const DuplicateEmail = require('../utils/DublicateEmail');//409
+const TokenError = require('../utils/TokenError');//401
+const NotAccess = require('../utils/NotAccess');//403
 
 const getCards = async (req, res, next) => {
   try {
@@ -63,13 +63,11 @@ const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true })
-    .orFail(() => new Error('Not found'))
+    .orFail(() => new NotFoundError('Карточка с указанным _id не найдена'))
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.message.includes('Cast to ObjectId failed for value')) {
         return next(new ErrNotAuth('Передан несуществующий _id карточки'));
-      } else if (err.message === 'Not found') {
-        return next(new NotFoundError('Карточка с указанным _id не найдена'));
       } else {
         next(err);
       }
@@ -80,13 +78,11 @@ const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true })
-    .orFail(() => new Error('Not found'))
+    .orFail(() => new NotFoundError('Карточка с указанным _id не найдена'))
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.message.includes('Cast to ObjectId failed for value')) {
         return next(new ErrNotAuth('Передан несуществующий _id карточки'));
-      } else if (err.message === 'Not found') {
-        return next(new NotFoundError('Карточка с указанным _id не найдена'));
       } else {
         next(err);
       }

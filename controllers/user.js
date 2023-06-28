@@ -1,11 +1,11 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const token = require('jsonwebtoken');
-const NotFoundError = require('../middlwares/NotFoundError');//404
-const ErrNotAuth = require('../middlwares/NotErrAuth');//400
+const NotFoundError = require('../utils/NotFoundError');//404
+const ErrNotAuth = require('../utils/NotErrAuth');//400
 const MongooseError = require('mongoose');
-const DuplicateEmail = require('../middlwares/DublicateEmail');//409
-const TokenError = require('../middlwares/TokenError');//401
+const DuplicateEmail = require('../utils/DublicateEmail');//409
+const TokenError = require('../utils/TokenError');//401
 
 const getUsers = async (req, res, next) => {
   try {

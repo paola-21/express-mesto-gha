@@ -1,11 +1,11 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const token = require('jsonwebtoken');
-const NotFoundError = require('../middlwares/NotFoundError');//404
-const ErrNotAuth = require('../middlwares/NotErrAuth');
+const NotFoundError = require('../utils/NotFoundError');//404
+const ErrNotAuth = require('../utils/NotErrAuth');
 const MongooseError = require('mongoose');
-const DuplicateEmail = require('../middlwares/DublicateEmail');//400
-const TokenError = require('../middlwares/TokenError');//401
+const DuplicateEmail = require('../utils/DublicateEmail');//400
+const TokenError = require('../utils/TokenError');//401
 
 const createUser = (req, res, next) => {
   bcrypt.hash(String(req.body.password), 10)
@@ -44,13 +44,12 @@ const login = (req, res, next) => {
               httpOnly: true,
             });
             res.send({ data: user.deletePassword() });
-          } else if (err.name === 'ValidationError') {
-            next(new TokenError('Неправильные почта или пароль'));
           }
           else {
-            next(err);
+            return next(new TokenError('Неправильные почта или пароль'));
           }
-        });
+        })
+        .catch(next);
     })
     .catch(next);
 };

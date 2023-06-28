@@ -1,9 +1,7 @@
 const router = require('express').Router();
 const { getUsers, getUsersbyId, editProfileUser, editAvatarUser, getUser } = require('../controllers/user');
-const auth = require('../middlwares/auth');
 const { celebrate, Joi } = require('celebrate');
-
-//router.use(auth);
+const pattern = /https?:\/\/(\w{3}\.)?[1-9a-z\-.]{1,}\w\w(\/[1-90a-z.,_@%&?+=~/-]{1,}\/?)?#?/i;
 
 router.get('/me', getUser);
 
@@ -12,10 +10,6 @@ router.get('/:id', celebrate({
     id: Joi.string().required().length(24).hex(),
   }),
 }), getUsersbyId);
-
-
-
-
 
 router.get('', getUsers);
 
@@ -28,7 +22,7 @@ router.patch('/me', celebrate({
 
 router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().pattern(/(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/),
+    avatar: Joi.string().pattern(pattern),
   }),
 }), editAvatarUser);
 
