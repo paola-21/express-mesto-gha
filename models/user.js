@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema({
   },
 }, { versionKey: false });
 
-userSchema.methods.deletePassword = function () {
+userSchema.methods.deletePassword = function() {
   const user = this.toObject();
   delete user.password;
 

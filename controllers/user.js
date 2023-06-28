@@ -1,17 +1,12 @@
-const bcrypt = require('bcryptjs');
-const token = require('jsonwebtoken');
-const MongooseError = require('mongoose');
 const User = require('../models/user');
 const NotFoundError = require('../utils/NotFoundError');// 404
 const ErrNotAuth = require('../utils/NotErrAuth');// 400
-const DuplicateEmail = require('../utils/DublicateEmail');// 409
-const TokenError = require('../utils/TokenError');// 401
 
 const getUsers = async (req, res, next) => {
   try {
     const users = await User.find({});
     res.status(200).send(users);
-  } catch (e) {
+  } catch (err) {
     next(err);
   }
 };
@@ -31,7 +26,6 @@ const getUsersbyId = (req, res, next) => {
 };
 
 const getUser = (req, res, next) => {
-  const { name, about } = req.body;
   User.findById(req.user._id)
     .then((user) => res.send({ data: user }))
     .catch((err) => {

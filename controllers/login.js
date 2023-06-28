@@ -1,8 +1,6 @@
 const bcrypt = require('bcryptjs');
 const token = require('jsonwebtoken');
-const MongooseError = require('mongoose');
 const User = require('../models/user');
-const NotFoundError = require('../utils/NotFoundError');// 404
 const ErrNotAuth = require('../utils/NotErrAuth');
 const DuplicateEmail = require('../utils/DublicateEmail');// 400
 const TokenError = require('../utils/TokenError');// 401
