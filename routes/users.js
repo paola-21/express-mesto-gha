@@ -3,7 +3,7 @@ const { getUsers, getUsersbyId, editProfileUser, editAvatarUser, getUser } = req
 const auth = require('../middlwares/auth');
 const { celebrate, Joi } = require('celebrate');
 
-router.use(auth);
+//router.use(auth);
 
 router.get('/me', getUser);
 

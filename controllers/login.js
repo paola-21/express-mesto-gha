@@ -44,7 +44,7 @@ const login = (req, res, next) => {
               httpOnly: true,
             });
             res.send({ data: user.deletePassword() });
-          } else if (err.name === 'ValidationError' || err.name === 'ValidatorError') {
+          } else if (err.name === 'ValidationError') {
             next(new TokenError('Неправильные почта или пароль'));
           }
           else {

@@ -33,14 +33,6 @@ app.use((err, req, res, next) => {
     });
 });
 
-// app.use((err, req, res, next) => {
-//   res.status(500).send({ message: 'На сервере произошла ошибка' });
-// });
-
-// app.use((err, req, res, next) => {
-//   res.status(err.statusCode).send({ message: err.message });
-// });
-
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });
