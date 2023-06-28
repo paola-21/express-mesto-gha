@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const { getCards, createCards, deleteCardbyId, likeCard, dislikeCard } = require('../controllers/card');
 const { celebrate, Joi } = require('celebrate');
+const pattern = /https?:\/\/(\w{3}\.)?[1-9a-z\-.]{1,}\w\w(\/[1-90a-z.,_@%&?+=~/-]{1,}\/?)?#?/i;
 
 router.delete('/:cardId', celebrate({
   params: Joi.object().keys({
@@ -13,7 +14,7 @@ router.get('', getCards);
 router.post('', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().pattern(/(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/),
+    link: Joi.string().required().pattern(pattern),
   }),
 }), createCards);
 
