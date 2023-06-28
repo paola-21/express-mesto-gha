@@ -1,9 +1,6 @@
 const Card = require('../models/card');
-
 const NotFoundError = require('../utils/NotFoundError');// 404
 const ErrNotAuth = require('../utils/NotErrAuth');// 400
-const DuplicateEmail = require('../utils/DublicateEmail');// 409
-const TokenError = require('../utils/TokenError');// 401
 const NotAccess = require('../utils/NotAccess');// 403
 
 const getCards = async (req, res, next) => {
@@ -40,7 +37,7 @@ const deleteCardbyId = (req, res, next) => {
     .then((card) => {
       if (card.owner.toString() === req.user._id) {
         return Card.findByIdAndRemove(card._id)
-          .then((card) => {
+          .then(() => {
             res.status(200).send({ data: card });
           })
           .catch(next);
