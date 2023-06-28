@@ -1,10 +1,10 @@
 const Card = require('../models/card');
 
-const NotFoundError = require('../utils/NotFoundError');//404
-const ErrNotAuth = require('../utils/NotErrAuth');//400
-const DuplicateEmail = require('../utils/DublicateEmail');//409
-const TokenError = require('../utils/TokenError');//401
-const NotAccess = require('../utils/NotAccess');//403
+const NotFoundError = require('../utils/NotFoundError');// 404
+const ErrNotAuth = require('../utils/NotErrAuth');// 400
+const DuplicateEmail = require('../utils/DublicateEmail');// 409
+const TokenError = require('../utils/TokenError');// 401
+const NotAccess = require('../utils/NotAccess');// 403
 
 const getCards = async (req, res, next) => {
   try {
@@ -13,9 +13,8 @@ const getCards = async (req, res, next) => {
   } catch (err) {
     if (err.message.includes('validation failed')) {
       return next(new ErrNotAuth('Вы ввели некоректные данные'));
-    } else {
-      next(err);
     }
+    next(err);
   }
 };
 
@@ -28,9 +27,8 @@ const createCards = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return next(new ErrNotAuth('Вы ввели некоректные данные'));
-      } else {
-        next(err);
       }
+      next(err);
     });
 };
 
@@ -46,9 +44,8 @@ const deleteCardbyId = (req, res, next) => {
             res.status(200).send({ data: card });
           })
           .catch(next);
-      } else {
-        next(new NotAccess('Невозможно удалить карточку'));
       }
+      next(new NotAccess('Невозможно удалить карточку'));
     })
     .catch((e) => {
       if (e.name === 'CastError') {
@@ -60,35 +57,37 @@ const deleteCardbyId = (req, res, next) => {
 };
 
 const likeCard = (req, res, next) => {
-  Card.findByIdAndUpdate(req.params.cardId,
+  Card.findByIdAndUpdate(
+    req.params.cardId,
     { $addToSet: { likes: req.user._id } },
-    { new: true })
+    { new: true },
+  )
     .orFail(() => new NotFoundError('Карточка с указанным _id не найдена'))
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.message.includes('Cast to ObjectId failed for value')) {
         return next(new ErrNotAuth('Передан несуществующий _id карточки'));
-      } else {
-        next(err);
       }
+      next(err);
     });
 };
 
 const dislikeCard = (req, res, next) => {
-  Card.findByIdAndUpdate(req.params.cardId,
+  Card.findByIdAndUpdate(
+    req.params.cardId,
     { $pull: { likes: req.user._id } },
-    { new: true })
+    { new: true },
+  )
     .orFail(() => new NotFoundError('Карточка с указанным _id не найдена'))
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.message.includes('Cast to ObjectId failed for value')) {
         return next(new ErrNotAuth('Передан несуществующий _id карточки'));
-      } else {
-        next(err);
       }
+      next(err);
     });
 };
 
-
-
-module.exports = { getCards, createCards, deleteCardbyId, likeCard, dislikeCard };
+module.exports = {
+  getCards, createCards, deleteCardbyId, likeCard, dislikeCard,
+};

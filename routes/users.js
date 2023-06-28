@@ -1,6 +1,9 @@
 const router = require('express').Router();
-const { getUsers, getUsersbyId, editProfileUser, editAvatarUser, getUser } = require('../controllers/user');
 const { celebrate, Joi } = require('celebrate');
+const {
+  getUsers, getUsersbyId, editProfileUser, editAvatarUser, getUser,
+} = require('../controllers/user');
+
 const pattern = /https?:\/\/(\w{3}\.)?[1-9a-z\-.]{1,}\w\w(\/[1-90a-z.,_@%&?+=~/-]{1,}\/?)?#?/i;
 
 router.get('/me', getUser);

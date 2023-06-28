@@ -16,15 +16,19 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
-    validate: { validator: (v) => validator.isURL(v),
-      message: 'Некорректный URL' },
+    validate: {
+      validator: (v) => validator.isURL(v),
+      message: 'Некорректный URL',
+    },
     minlength: [3, 'Минимальная длина поля "avatar" - 3'],
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
   },
   email: {
     type: String,
-    validate: { validator: (v) => validator.isEmail(v),
-      message: 'Неправильный формат почты' },
+    validate: {
+      validator: (v) => validator.isEmail(v),
+      message: 'Неправильный формат почты',
+    },
     required: [true, 'Поле "email" должно быть заполнено'],
     unique: true,
   },
@@ -35,7 +39,7 @@ const userSchema = new mongoose.Schema({
   },
 }, { versionKey: false });
 
-userSchema.methods.deletePassword = function() {
+userSchema.methods.deletePassword = function () {
   const user = this.toObject();
   delete user.password;
 

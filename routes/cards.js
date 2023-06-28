@@ -1,6 +1,9 @@
 const router = require('express').Router();
-const { getCards, createCards, deleteCardbyId, likeCard, dislikeCard } = require('../controllers/card');
 const { celebrate, Joi } = require('celebrate');
+const {
+  getCards, createCards, deleteCardbyId, likeCard, dislikeCard,
+} = require('../controllers/card');
+
 const pattern = /https?:\/\/(\w{3}\.)?[1-9a-z\-.]{1,}\w\w(\/[1-90a-z.,_@%&?+=~/-]{1,}\/?)?#?/i;
 
 router.delete('/:cardId', celebrate({
