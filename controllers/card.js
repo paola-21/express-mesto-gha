@@ -34,41 +34,12 @@ const createCards = (req, res, next) => {
     });
 };
 
-// const deleteCardbyId = (req, res) => {
-//   Card.findByIdAndRemove(req.params.cardId)
-//     .orFail(() => new Error('Not found'))
-//     .then((card) => res.status(200).send({ data: card }))
-//     .catch((err) => {
-//       if (err.message.includes('Cast to ObjectId failed for value')) {
-//         res
-//           .status(400)
-//           .send({
-//             message: 'Переданы некорректные данные для постановки лайка.',
-//           });
-//       } else if (err.message === 'Not found') {
-//         res
-//           .status(404)
-//           .send({ message: 'Карточка с указанным _id не найдена.' });
-//       } else {
-//         res
-//           .status(500)
-//           .send({
-//             message: 'Internal Server Error',
-//             err: err.message,
-//             stack: err.stack,
-//           });
-//       }
-//     });
-// };
-
 const deleteCardbyId = (req, res, next) => {
   Card.findById(req.params.cardId)
     .orFail(() => {
-      throw new NotAccess('Карточка с указанным _id не найдена');
+      throw new NotFoundError('Карточка с указанным _id не найдена');
     })
     .then((card) => {
-      // const owner = card.owner.toString();
-      // console.log(owner);
       if (card.owner.toString() === req.user._id) {
         return Card.findByIdAndRemove(card._id)
           .then((card) => {
@@ -76,7 +47,7 @@ const deleteCardbyId = (req, res, next) => {
           })
           .catch(next);
       } else {
-        next(new NotAccess('Невозможно удалить карточку'));//403
+        next(new NotAccess('Невозможно удалить карточку'));
       }
     })
     .catch((e) => {
